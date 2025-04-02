@@ -14,6 +14,7 @@ interface Product {
   price: number;
   rating: number;
   image: string;
+  category: string;
   brand: string;
 }
 
@@ -29,6 +30,7 @@ export default function ProductCatalogue() {
       price: 90,
       rating: 4.5,
       image: iphone,
+    category:"phones",
       brand: 'Infinix'
     },
 
@@ -39,6 +41,7 @@ export default function ProductCatalogue() {
         price: 90,
         rating: 4.5,
         image: iphone,
+        category:"phones",
         brand: "Infinix"
       },
 
@@ -50,6 +53,7 @@ export default function ProductCatalogue() {
         price: 90,
         rating: 4.5,
         image: iphone,
+        category:"phones",
         brand: "Infinix"
       },
 
@@ -60,6 +64,7 @@ export default function ProductCatalogue() {
         price: 90,
         rating: 4.5,
         image: iphone,
+        category:"phones",
         brand:"Tecno"
       },
 
@@ -72,6 +77,7 @@ export default function ProductCatalogue() {
         price: 90,
         rating: 4.5,
         image: iphone,
+        category:"phones",
             brand:"Infinix"
       },
 
@@ -83,6 +89,7 @@ export default function ProductCatalogue() {
         price: 90,
         rating: 4.5,
         image: iphone,
+        category:"phones",
         brand:"itel"
       },
     // Add more products as needed
@@ -121,10 +128,10 @@ export default function ProductCatalogue() {
 
   return (
     <div className="min-h-screen bg-[#FCFDFF]">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
         <div className="flex gap-8">
           {/* Categories Sidebar */}
-          <div className="w-64 flex-shrink-0  bg-white border rounded-md h-fit p-7">
+          <div className="w-64 flex-shrink-0 bg-white border rounded-lg h-fit p-7">
             <h2 className="text-xl font-semibold mb-4">Categories</h2>
             <div className="space-y-2">
               {categories.map((category, index) => (
