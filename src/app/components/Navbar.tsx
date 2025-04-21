@@ -1,12 +1,15 @@
 'use client';
 
+import { useSession } from 'next-auth/react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useState } from 'react';
+import { useCart } from '../hooks/useCart';
 
 export default function Navbar() {
   const [isProfileOpen, setIsProfileOpen] = useState(false);
-
+  const { data: session } = useSession();
+  const { cartItemsCount } = useCart();
   return (
     <nav className="bg-white shadow-sm">
       <div className="max-w-8xl mx-auto px-4 sm:px-6 lg:px-6">
@@ -41,7 +44,62 @@ export default function Navbar() {
           {/* Right Section */}
           <div className="flex items-center space-x-6">
             {/* Profile Dropdown */}
-            <div className="relative">
+
+            {session ? (
+              /* Profile Dropdown */
+              <div className="relative">
+                <button
+                  onClick={() => setIsProfileOpen(!isProfileOpen)}
+                  className="flex items-center space-x-2 focus:outline-none"
+                >
+                  <div className="w-8 h-8 rounded-full bg-gray-200 overflow-hidden">
+                    <Image
+                      src={session.user?.image || "/placeholder-avatar.jpg"}
+                      alt="Profile"
+                      width={32}
+                      height={32}
+                      className="object-cover"
+                    />
+                  </div>
+                  <span className="hidden md:inline text-sm">{session.user?.name || 'My Profile'}</span>
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                  </svg>
+                </button>
+
+                {isProfileOpen && (
+                  <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1">
+                    <Link href="/profile" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Your Profile</Link>
+                    <Link href="/orders" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Orders</Link>
+                    <Link href="/settings" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Settings</Link>
+                    {/* <button 
+                      onClick={() => signOut()} 
+                      className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                    >
+                      Sign out
+                    </button> */}
+                  </div>
+                )}
+              </div>
+            ) : (
+              /* Auth Buttons */
+              <div className="flex items-center space-x-4">
+                <Link 
+                  href="/auth/signin" 
+                  className="text-gray-700 hover:text-blue-600"
+                >
+                  Sign in
+                </Link>
+                <Link 
+                  href="/auth/signup"
+                  className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700"
+                >
+                  Sign up
+                </Link>
+              </div>
+            )}
+
+            {/* <div className="relative">
               <button
                 onClick={() => setIsProfileOpen(!isProfileOpen)}
                 className="flex items-center space-x-2 focus:outline-none"
@@ -69,7 +127,7 @@ export default function Navbar() {
                   <button className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Sign out</button>
                 </div>
               )}
-            </div>
+            </div> */}
 
             {/* Wishlist */}
             <button className="relative p-2 hover:text-blue-600">
@@ -83,7 +141,11 @@ export default function Navbar() {
               <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
               </svg>
-              <span className="absolute -top-1 -right-1 bg-blue-600 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center">3</span>
+              {cartItemsCount > 0 && (
+                <span className="absolute -top-1 -right-1 bg-blue-600 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center">
+                  {cartItemsCount}
+                </span>
+              )}
             </Link>
           </div>
         </div>

@@ -1,8 +1,8 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useParams } from 'next/navigation';
 import Image from 'next/image';
-import iphone from "../../../../public/image 3 (1).svg"
 
 interface ProductDetails {
   id: string;
@@ -10,48 +10,66 @@ interface ProductDetails {
   description: string;
   price: number;
   rating: number;
-  mainImage: string;
   images: string[];
-  specs: {
-    storage: string;
-    ram: string;
-    camera: string;
-    display: string;
-    battery: string;
-    processor: string;
-  };
-  colors: string[];
+  storage: string;
+  ram: string;
+  camera: string;
+  display: string;
+  battery: string;
+  processor: string;
 }
 
 export default function ProductDetails() {
+  const params = useParams();
   const [selectedImage, setSelectedImage] = useState(0);
-  const [selectedColor, setSelectedColor] = useState(0);
+  const [product, setProduct] = useState<ProductDetails | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  // Mock data - replace with actual data fetching
-  const product: ProductDetails = {
-    id: '1',
-    name: 'iPhone Smart 13',
-    description: 'Experience the next generation of mobile technology with the iPhone Smart 13. Featuring advanced camera capabilities, stunning display, and powerful performance.',
-    price: 999,
-    rating: 4.8,
-    mainImage: '/placeholder-phone.jpg',
-    images: [
-     iphone,
-     iphone,
-     iphone,
-     iphone,
-     iphone
-    ],
-    specs: {
-      storage: '128GB',
-      ram: '6GB',
-      camera: '48MP Main + 12MP Ultra Wide',
-      display: '6.1-inch Super Retina XDR',
-      battery: '4000mAh',
-      processor: 'A15 Bionic chip'
-    },
-    colors: ['Space Gray', 'Silver', 'Gold', 'Pacific Blue']
-  };
+  useEffect(() => {
+    const fetchProduct = async () => {
+      try {
+        const response = await fetch(`/api/products/${params.id}`);
+        if (!response.ok) {
+          throw new Error('Product not found');
+        }
+        const data = await response.json();
+        setProduct(data);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Failed to load product');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (params.id) {
+      fetchProduct();
+    }
+  }, [params.id]);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-[#FCFDFF] flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+      </div>
+    );
+  }
+
+  if (error || !product) {
+    return (
+      <div className="min-h-screen bg-[#FCFDFF] flex items-center justify-center">
+        <div className="text-center text-red-600">
+          <p>{error || 'Product not found'}</p>
+          <button 
+            onClick={() => window.history.back()} 
+            className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+          >
+            Go Back
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-[#FCFDFF]">
@@ -101,27 +119,10 @@ export default function ProductDetails() {
                   </svg>
                 ))}
               </div>
-              <span className="text-sm text-gray-600">{product.rating} (245 reviews)</span>
+              <span className="text-sm text-gray-600">{product.rating}</span>
             </div>
             <p className="text-gray-600">{product.description}</p>
             <div className="text-3xl font-bold">${product.price}</div>
-
-            {/* Color Selection */}
-            <div>
-              <h3 className="text-sm font-medium text-gray-900">Color</h3>
-              <div className="flex space-x-3 mt-2">
-                {product.colors.map((color, index) => (
-                  <button
-                    key={color}
-                    onClick={() => setSelectedColor(index)}
-                    className={`relative p-0.5 rounded-full flex items-center justify-center ${selectedColor === index ? 'ring-2 ring-blue-600' : ''}`}
-                  >
-                    <span className="sr-only">{color}</span>
-                    <span className="h-8 w-8 rounded-full border border-gray-200 bg-gray-100"></span>
-                  </button>
-                ))}
-              </div>
-            </div>
 
             {/* Action Buttons */}
             <div className="flex space-x-4">
@@ -139,27 +140,27 @@ export default function ProductDetails() {
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <h4 className="text-sm font-medium text-gray-900">Storage</h4>
-                  <p className="mt-1 text-sm text-gray-600">{product.specs.storage}</p>
+                  <p className="mt-1 text-sm text-gray-600">{product.storage}</p>
                 </div>
                 <div>
                   <h4 className="text-sm font-medium text-gray-900">RAM</h4>
-                  <p className="mt-1 text-sm text-gray-600">{product.specs.ram}</p>
+                  <p className="mt-1 text-sm text-gray-600">{product.ram}</p>
                 </div>
                 <div>
                   <h4 className="text-sm font-medium text-gray-900">Camera</h4>
-                  <p className="mt-1 text-sm text-gray-600">{product.specs.camera}</p>
+                  <p className="mt-1 text-sm text-gray-600">{product.camera}</p>
                 </div>
                 <div>
                   <h4 className="text-sm font-medium text-gray-900">Display</h4>
-                  <p className="mt-1 text-sm text-gray-600">{product.specs.display}</p>
+                  <p className="mt-1 text-sm text-gray-600">{product.display}</p>
                 </div>
                 <div>
                   <h4 className="text-sm font-medium text-gray-900">Battery</h4>
-                  <p className="mt-1 text-sm text-gray-600">{product.specs.battery}</p>
+                  <p className="mt-1 text-sm text-gray-600">{product.battery}</p>
                 </div>
                 <div>
                   <h4 className="text-sm font-medium text-gray-900">Processor</h4>
-                  <p className="mt-1 text-sm text-gray-600">{product.specs.processor}</p>
+                  <p className="mt-1 text-sm text-gray-600">{product.processor}</p>
                 </div>
               </div>
             </div>

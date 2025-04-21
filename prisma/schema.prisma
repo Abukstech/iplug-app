@@ -21,15 +21,21 @@ model User {
 }
 
 model Product {
-  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  id          String      @id @default(auto()) @map("_id") @db.ObjectId
   name        String
   description String
   price       Float
-  image       String
+  images      String[]
   category    String
   stock       Int
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  storage     String?
+  ram         String?
+  camera      String?
+  display     String?
+  battery     String?
+  processor   String?
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
   CartItem    CartItem[]
   OrderItem   OrderItem[]
 }

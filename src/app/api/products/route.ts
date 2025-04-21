@@ -41,11 +41,21 @@ export async function GET(request: Request) {
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { name, description, price, image, category, stock } = body;
+    const { 
+      name, description, price, images, category, stock,
+      storage, ram, camera, display, battery, processor 
+    } = body;
 
-    if (!name || !description || !price || !image || !category || stock === undefined) {
+    if (!name || !description || !price || !images?.length || !category || stock === undefined) {
       return NextResponse.json(
         { error: 'Missing required fields' },
+        { status: 400 }
+      );
+    }
+
+    if (images.some((url: string) => !url)) {
+      return NextResponse.json(
+        { error: 'All image URLs must be provided' },
         { status: 400 }
       );
     }
@@ -55,9 +65,15 @@ export async function POST(request: Request) {
         name,
         description,
         price: parseFloat(price),
-        image,
+        images,
         category,
-        stock: parseInt(stock)
+        stock: parseInt(stock),
+        storage: storage || null,
+        ram: ram || null,
+        camera: camera || null,
+        display: display || null,
+        battery: battery || null,
+        processor: processor || null
       }
     });
 

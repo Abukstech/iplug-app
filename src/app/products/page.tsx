@@ -1,99 +1,57 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import iphone from "../../../public/image 3 (1).svg"
 import infinix from "../../../public/infinix.svg"
 import tecno from "../../../public/tecno.svg"
 import itel from "../../../public/itel.svg"
+import { useCart } from '../hooks/useCart';
 
 interface Product {
   id: string;
   name: string;
-  specs: string;
+  description: string;
   price: number;
   rating: number;
-  image: string;
+  images: string[];
   category: string;
   brand: string;
+  storage?: string;
+  ram?: string;
+  camera?: string;
+  display?: string;
+  battery?: string;
+  processor?: string;
 }
 
 export default function ProductCatalogue() {
   const [selectedBrands, setSelectedBrands] = useState<string[]>([]);
   const [selectedRating, setSelectedRating] = useState<number | null>(null);
   const [priceRange, setPriceRange] = useState<string>('all');
-  const [products] = useState<Product[]>([
-    {
-      id: '1',
-      name: 'Infinix Smart 10',
-      specs: '128GB Storage | 6GB RAM | 5MP',
-      price: 90,
-      rating: 4.5,
-      image: iphone,
-    category:"phones",
-      brand: 'Infinix'
-    },
+  const [products, setProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const { addToCart } = useCart();
 
-    {
-        id: '1',
-        name: 'Infinix Smart 10',
-        specs: '128GB Storage | 6GB RAM | 5MP',
-        price: 90,
-        rating: 4.5,
-        image: iphone,
-        category:"phones",
-        brand: "Infinix"
-      },
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        const response = await fetch('/api/products');
+        if (!response.ok) {
+          throw new Error('Failed to fetch products');
+        }
+        const data = await response.json();
+        setProducts(data);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Failed to load products');
+      } finally {
+        setLoading(false);
+      }
+    };
 
-
-      {
-        id: '1',
-        name: 'Infinix Smart 10',
-        specs: '128GB Storage | 6GB RAM | 5MP',
-        price: 90,
-        rating: 4.5,
-        image: iphone,
-        category:"phones",
-        brand: "Infinix"
-      },
-
-      {
-        id: '1',
-        name: 'Infinix Smart 10',
-        specs: '128GB Storage | 6GB RAM | 5MP',
-        price: 90,
-        rating: 4.5,
-        image: iphone,
-        category:"phones",
-        brand:"Tecno"
-      },
-
-
-
-      {
-        id: '1',
-        name: 'Infinix Smart 10',
-        specs: '128GB Storage | 6GB RAM | 5MP',
-        price: 90,
-        rating: 4.5,
-        image: iphone,
-        category:"phones",
-            brand:"Infinix"
-      },
-
-
-      {
-        id: '1',
-        name: 'Infinix Smart 10',
-        specs: '128GB Storage | 6GB RAM | 5MP',
-        price: 90,
-        rating: 4.5,
-        image: iphone,
-        category:"phones",
-        brand:"itel"
-      },
-    // Add more products as needed
-  ]);
+    fetchProducts();
+  }, []);
 
   const categories = [
     'Mobile Phones',
@@ -125,6 +83,33 @@ export default function ProductCatalogue() {
       (priceRange === '500+' && product.price > 500);
     return matchesBrand && matchesRating && matchesPrice;
   });
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-[#FCFDFF] flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+          <p className="mt-4 text-gray-600">Loading products...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-[#FCFDFF] flex items-center justify-center">
+        <div className="text-center text-red-600">
+          <p>{error}</p>
+          <button 
+            onClick={() => window.location.reload()} 
+            className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+          >
+            Retry
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-[#FCFDFF]">
@@ -251,10 +236,11 @@ export default function ProductCatalogue() {
             {/* Product Grid */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
               {filteredProducts.map((product) => (
-                <div key={product.id} className="bg-white rounded-lg shadow-md p-4 cursor-pointer" onClick={() => window.location.href = `/products/${product.id}`}>
+                <div key={product.id} className="bg-white rounded-lg shadow-md p-4 cursor-pointer" 
+                     onClick={() => window.location.href = `/products/${product.id}`}>
                   <div className="relative h-48 mb-4">
                     <Image
-                      src={product.image}
+                      src={product.images[0]} // Use the first image from the images array
                       alt={product.name}
                       fill
                       className="object-contain"
@@ -266,30 +252,32 @@ export default function ProductCatalogue() {
                     </button>
                   </div>
                   <h3 className="font-semibold text-lg mb-2">{product.name}</h3>
-                  <p className="text-sm text-gray-600 mb-2">{product.specs}</p>
-                  <div className="flex items-center mb-3">
-                    {[...Array(5)].map((_, i) => (
-                      <svg
-                        key={i}
-                        className={`w-4 h-4 ${i < product.rating ? 'text-yellow-400' : 'text-gray-300'}`}
-                        fill="currentColor"
-                        viewBox="0 0 20 20"
-                      >
-                        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                      </svg>
-                    ))}
-                    <span className="text-sm text-gray-600 ml-2">{product.rating}</span>
-                  </div>
+                  <p className="text-sm text-gray-600 mb-2">
+                    {`${product.storage || ''} ${product.ram || ''} ${product.camera || ''}`}
+                  </p>
                   <div className="flex items-center justify-between">
                     <span className="text-xl font-bold">${product.price}</span>
                     <div className="space-x-2">
                       <button className="bg-blue-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-blue-700">Buy Now</button>
-                      <button className="border border-blue-600 text-blue-600 px-4 py-2 rounded-md text-sm font-medium hover:bg-blue-50">Add to cart</button>
+                      <button onClick={(e: { stopPropagation: () => void; }) => {
+                          e.stopPropagation();
+                          addToCart({
+                            id: product.id,
+                            name: product.name,
+                            price: product.price,
+                            image: product.images[0],
+                            quantity: 1
+                          });
+                        }} className="border border-blue-600 text-blue-600 px-4 py-2 rounded-md text-sm font-medium hover:bg-blue-50">Add to cart</button>
                     </div>
                   </div>
                 </div>
+                
               ))}
             </div>
+
+
+
 
             {/* Pagination */}
             <div className="flex items-center justify-center mt-8 gap-2">

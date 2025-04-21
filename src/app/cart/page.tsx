@@ -3,48 +3,90 @@
 import { useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
+import { useCart } from '../hooks/useCart';
+import { loadStripe } from '@stripe/stripe-js';
 
 interface CartItem {
   id: string;
   name: string;
   price: number;
-  color: string;
-  seller: string;
   image: string;
   quantity: number;
 }
 
+
+const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!);
 export default function Cart() {
-  const [cartItems, setCartItems] = useState<CartItem[]>([
-    {
-      id: '1',
-      name: 'Infinix Smart 10',
-      price: 90,
-      color: 'White',
-      seller: 'Iplug Gadget',
-      image: '/image 3 (1).svg',
-      quantity: 1,
-    },
-    // Add more mock items as needed
-  ]);
+  const { items: cartItems, removeFromCart, addToCart } = useCart();
 
   const updateQuantity = (id: string, newQuantity: number) => {
     if (newQuantity < 1) return;
-    setCartItems(items =>
-      items.map(item =>
-        item.id === id ? { ...item, quantity: newQuantity } : item
-      )
-    );
+    
+    const item = cartItems.find(item => item.id === id);
+    if (item) {
+      removeFromCart(id);
+      addToCart({ ...item, quantity: newQuantity });
+    }
   };
 
   const removeItem = (id: string) => {
-    setCartItems(items => items.filter(item => item.id !== id));
+    removeFromCart(id);
   };
 
   const subtotal = cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
-  const delivery = 20;
-  const tax = 20;
+  const delivery = cartItems.length > 0 ? 20 : 0;
+  const tax = cartItems.length > 0 ? subtotal * 0.1 : 0;
   const total = subtotal + delivery + tax;
+
+
+  const handleCheckout = async () => {
+    try {
+      const stripe = await stripePromise;
+      if (!stripe) throw new Error('Stripe failed to initialize');
+
+      const response = await fetch('/api/checkout', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          items: cartItems.map(item => ({
+            name: item.name,
+            price: item.price,
+            image: item.image,
+            quantity: item.quantity,
+          })),
+        }),
+      });
+
+      const { sessionId } = await response.json();
+      const result = await stripe.redirectToCheckout({
+        sessionId,
+      });
+
+      if (result.error) {
+        throw new Error(result.error.message);
+      }
+    } catch (error) {
+      console.error('Error:', error);
+      // Handle error (show error message to user)
+    }
+  };
+
+  if (cartItems.length === 0) {
+    return (
+      <div className="min-h-screen bg-[#FCFDFF] py-8">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center">
+            <h2 className="text-2xl font-bold mb-4">Your cart is empty</h2>
+            <Link href="/products" className="text-blue-600 hover:text-blue-700">
+              Continue Shopping
+            </Link>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-[#FCFDFF] py-8">
@@ -133,7 +175,7 @@ export default function Cart() {
                     <span>${total.toFixed(2)}</span>
                   </div>
                 </div>
-                <button className="w-full bg-blue-600 text-white py-3 rounded-md font-semibold hover:bg-blue-700 transition mt-4">
+                <button onClick={handleCheckout} className="w-full bg-blue-600 text-white py-3 rounded-md font-semibold hover:bg-blue-700 transition mt-4">
                   Checkout (${total.toFixed(2)})
                 </button>
               </div>

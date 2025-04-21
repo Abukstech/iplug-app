@@ -7,13 +7,21 @@ export default function ProductForm() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  // First, update the formData state type to include an array of images
+  // Update the formData state
   const [formData, setFormData] = useState({
     name: '',
     description: '',
     price: '',
-    image: '',
+    images: [''],
     category: '',
-    stock: ''
+    stock: '',
+    storage: '',
+    ram: '',
+    camera: '',
+    display: '',
+    battery: '',
+    processor: ''
   });
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
@@ -109,19 +117,47 @@ export default function ProductForm() {
         />
       </div>
 
+  
       <div className="space-y-2">
-        <label htmlFor="image" className="block text-sm font-medium">
-          Image URL
+        <label className="block text-sm font-medium">
+          Image URLs
         </label>
-        <input
-          type="url"
-          id="image"
-          name="image"
-          value={formData.image}
-          onChange={handleChange}
-          required
-          className="w-full p-2 border rounded-md"
-        />
+        {formData.images.map((url, index) => (
+          <div key={index} className="flex gap-2 mb-2">
+            <input
+              type="url"
+              name={`image-${index}`}
+              value={url}
+              onChange={(e) => {
+                const newImages = [...formData.images];
+                newImages[index] = e.target.value;
+                setFormData(prev => ({ ...prev, images: newImages }));
+              }}
+              required
+              className="flex-1 p-2 border rounded-md"
+              placeholder="Enter image URL"
+            />
+            <button
+              type="button"
+              onClick={() => {
+                const newImages = formData.images.filter((_, i) => i !== index);
+                setFormData(prev => ({ ...prev, images: newImages.length ? newImages : [''] }));
+              }}
+              className="px-3 py-2 text-red-500 hover:bg-red-50 rounded-md"
+            >
+              Remove
+            </button>
+          </div>
+        ))}
+        <button
+          type="button"
+          onClick={() => {
+            setFormData(prev => ({ ...prev, images: [...prev.images, ''] }));
+          }}
+          className="mt-2 text-blue-500 hover:bg-blue-50 px-3 py-2 rounded-md"
+        >
+          Add Another Image
+        </button>
       </div>
 
       <div className="space-y-2">
@@ -156,6 +192,96 @@ export default function ProductForm() {
           onChange={handleChange}
           required
           min="0"
+          className="w-full p-2 border rounded-md"
+        />
+      </div>
+
+      <div className="space-y-2">
+        <label htmlFor="storage" className="block text-sm font-medium">
+          Storage
+        </label>
+        <input
+          type="text"
+          id="storage"
+          name="storage"
+          value={formData.storage}
+          onChange={handleChange}
+          placeholder="e.g., 128GB"
+          className="w-full p-2 border rounded-md"
+        />
+      </div>
+
+      <div className="space-y-2">
+        <label htmlFor="ram" className="block text-sm font-medium">
+          RAM
+        </label>
+        <input
+          type="text"
+          id="ram"
+          name="ram"
+          value={formData.ram}
+          onChange={handleChange}
+          placeholder="e.g., 6GB"
+          className="w-full p-2 border rounded-md"
+        />
+      </div>
+
+      <div className="space-y-2">
+        <label htmlFor="camera" className="block text-sm font-medium">
+          Camera
+        </label>
+        <input
+          type="text"
+          id="camera"
+          name="camera"
+          value={formData.camera}
+          onChange={handleChange}
+          placeholder="e.g., 48MP Main + 12MP Ultra Wide"
+          className="w-full p-2 border rounded-md"
+        />
+      </div>
+
+      <div className="space-y-2">
+        <label htmlFor="display" className="block text-sm font-medium">
+          Display
+        </label>
+        <input
+          type="text"
+          id="display"
+          name="display"
+          value={formData.display}
+          onChange={handleChange}
+          placeholder="e.g., 6.1-inch Super Retina XDR"
+          className="w-full p-2 border rounded-md"
+        />
+      </div>
+
+      <div className="space-y-2">
+        <label htmlFor="battery" className="block text-sm font-medium">
+          Battery
+        </label>
+        <input
+          type="text"
+          id="battery"
+          name="battery"
+          value={formData.battery}
+          onChange={handleChange}
+          placeholder="e.g., 4000mAh"
+          className="w-full p-2 border rounded-md"
+        />
+      </div>
+
+      <div className="space-y-2">
+        <label htmlFor="processor" className="block text-sm font-medium">
+          Processor
+        </label>
+        <input
+          type="text"
+          id="processor"
+          name="processor"
+          value={formData.processor}
+          onChange={handleChange}
+          placeholder="e.g., A15 Bionic chip"
           className="w-full p-2 border rounded-md"
         />
       </div>
