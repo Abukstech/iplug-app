@@ -31,6 +31,9 @@ export default function ProductCatalogue() {
   const [priceRange, setPriceRange] = useState<string>('all');
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
+
+
+  const [isMobileFiltersOpen, setIsMobileFiltersOpen] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const { addToCart } = useCart();
 
@@ -111,12 +114,42 @@ export default function ProductCatalogue() {
     );
   }
 
+
   return (
     <div className="min-h-screen bg-[#FCFDFF]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-        <div className="flex gap-8">
+        {/* Mobile filter button */}
+        <div className="lg:hidden mb-4">
+          <button
+            onClick={() => setIsMobileFiltersOpen(!isMobileFiltersOpen)}
+            className="w-full bg-white p-2 rounded-md border flex items-center justify-center gap-2"
+          >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
+            </svg>
+            <span>Filters</span>
+          </button>
+        </div>
+
+        <div className="flex flex-col lg:flex-row gap-8">
           {/* Categories Sidebar */}
-          <div className="w-64 flex-shrink-0 bg-white border rounded-lg h-fit p-7">
+          <div className={`
+            ${isMobileFiltersOpen ? 'block' : 'hidden'} 
+            lg:block w-full lg:w-64 flex-shrink-0 bg-white border rounded-lg h-fit p-7
+            fixed lg:relative top-0 left-0 right-0 z-50 lg:z-0
+            ${isMobileFiltersOpen ? 'h-screen lg:h-auto overflow-y-auto' : ''}
+          `}>
+            {/* Close button for mobile */}
+            <div className="lg:hidden flex justify-between items-center mb-4">
+              <h2 className="text-xl font-semibold">Filters</h2>
+              <button onClick={() => setIsMobileFiltersOpen(false)}>
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+
+            {/* Categories content remains the same */}
             <h2 className="text-xl font-semibold mb-4">Categories</h2>
             <div className="space-y-2">
               {categories.map((category, index) => (
@@ -133,8 +166,8 @@ export default function ProductCatalogue() {
           {/* Main Content */}
           <div className="flex-1">
             {/* Filters */}
-            <div className="flex items-center justify-between mb-6">
-              <div className="flex gap-4">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6 gap-4">
+              <div className="flex flex-wrap gap-4">
                 <div className="relative">
                   <button
                     className="border rounded-md px-3 py-2 flex items-center gap-2"
@@ -228,19 +261,18 @@ export default function ProductCatalogue() {
                   </div>
                 </div>
               </div>
-              <div className="text-sm text-gray-500">
+              <div className="text-sm text-gray-500 w-full sm:w-auto text-center sm:text-right">
                 Showing 1-15 of 200 results
               </div>
             </div>
 
             {/* Product Grid */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
               {filteredProducts.map((product) => (
-                <div key={product.id} className="bg-white rounded-lg shadow-md p-4 cursor-pointer" 
-                     onClick={() => window.location.href = `/products/${product.id}`}>
-                  <div className="relative h-48 mb-4">
+                <div key={product.id} className="bg-white rounded-lg shadow-md p-3 sm:p-4 cursor-pointer">
+                  <div className="relative h-40 sm:h-48 mb-4">
                     <Image
-                      src={product.images[0]} // Use the first image from the images array
+                      src={product.images[0]}
                       alt={product.name}
                       fill
                       className="object-contain"
@@ -251,15 +283,18 @@ export default function ProductCatalogue() {
                       </svg>
                     </button>
                   </div>
-                  <h3 className="font-semibold text-lg mb-2">{product.name}</h3>
-                  <p className="text-sm text-gray-600 mb-2">
+                  <h3 className="font-semibold text-base sm:text-lg mb-2">{product.name}</h3>
+                  <p className="text-xs sm:text-sm text-gray-600 mb-2">
                     {`${product.storage || ''} ${product.ram || ''} ${product.camera || ''}`}
                   </p>
-                  <div className="flex items-center justify-between">
-                    <span className="text-xl font-bold">${product.price}</span>
-                    <div className="space-x-2">
-                      <button className="bg-blue-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-blue-700">Buy Now</button>
-                      <button onClick={(e: { stopPropagation: () => void; }) => {
+                  <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
+                    <span className="text-lg sm:text-xl font-bold">${product.price}</span>
+                    <div className="flex gap-2 w-full sm:w-auto">
+                      <button className="flex-1 sm:flex-none bg-blue-600 text-white px-3 py-1.5 rounded-md text-sm font-medium hover:bg-blue-700">
+                        Buy Now
+                      </button>
+                      <button 
+                        onClick={(e) => {
                           e.stopPropagation();
                           addToCart({
                             id: product.id,
@@ -268,24 +303,24 @@ export default function ProductCatalogue() {
                             image: product.images[0],
                             quantity: 1
                           });
-                        }} className="border border-blue-600 text-blue-600 px-4 py-2 rounded-md text-sm font-medium hover:bg-blue-50">Add to cart</button>
+                        }} 
+                        className="flex-1 sm:flex-none border border-blue-600 text-blue-600 px-3 py-1.5 rounded-md text-sm font-medium hover:bg-blue-50"
+                      >
+                        Add to cart
+                      </button>
                     </div>
                   </div>
                 </div>
-                
               ))}
             </div>
 
-
-
-
             {/* Pagination */}
-            <div className="flex items-center justify-center mt-8 gap-2">
-              <button className="px-3 py-1 border rounded-md hover:bg-gray-100">Previous</button>
-              <button className="px-3 py-1 bg-blue-600 text-white rounded-md">1</button>
-              <button className="px-3 py-1 border rounded-md hover:bg-gray-100">2</button>
-              <button className="px-3 py-1 border rounded-md hover:bg-gray-100">3</button>
-              <button className="px-3 py-1 border rounded-md hover:bg-gray-100">Next</button>
+            <div className="flex items-center justify-center mt-8 gap-1 sm:gap-2">
+              <button className="px-2 sm:px-3 py-1 border rounded-md hover:bg-gray-100 text-sm">Previous</button>
+              <button className="px-2 sm:px-3 py-1 bg-blue-600 text-white rounded-md text-sm">1</button>
+              <button className="px-2 sm:px-3 py-1 border rounded-md hover:bg-gray-100 text-sm">2</button>
+              <button className="px-2 sm:px-3 py-1 border rounded-md hover:bg-gray-100 text-sm">3</button>
+              <button className="px-2 sm:px-3 py-1 border rounded-md hover:bg-gray-100 text-sm">Next</button>
             </div>
           </div>
         </div>
