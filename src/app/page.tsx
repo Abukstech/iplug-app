@@ -49,8 +49,17 @@ const PhoneData = [
 ];
 
 import Navbar from './components/Navbar';
+import prisma from "../../lib/prisma";
 
-export default function Home() {
+export default async  function  Home() {
+
+  const trendingDevices = await prisma.product.findMany({
+      take: 4,
+      orderBy: {
+        createdAt: 'desc'  // Get the most recently added products
+      },
+    
+    });
   const trendingPhones = [
     { name: "iPhone Smart 13", price: "$ 999", image: phone1, rating: 4.5 },
     { name: "iPhone Smart 12", price: "$ 799", image: phone2, rating: 4.5 },
@@ -122,16 +131,16 @@ export default function Home() {
         <section className="my-12">
           <h2 className="text-2xl font-semibold mb-6">Trending</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {trendingPhones.map((phone, index) => (
+            {trendingDevices.map((phone, index) => (
               // Replace the div with Link
               <Link 
-                href={`/products/${index + 1}`} 
+                href={`/products/${phone.id}`} 
                 key={index} 
                 className="bg-white rounded-lg shadow-md p-4 cursor-pointer"
               >
                 <div className="relative h-48 mb-4">
                   <Image
-                    src={phone.image}
+                    src={phone.images[0]}
                     alt={phone.name}
                     fill
                     className="object-contain"
