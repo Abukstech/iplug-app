@@ -17,9 +17,22 @@ export async function GET(request: Request) {
       );
     }
 
+    const user = await prisma.user.findUnique({
+      where: {
+        email: session.user.email!
+      }
+    });
+
+    if (!user) {
+      return NextResponse.json(
+        { error: 'User not found' },
+        { status: 404 }
+      );
+    }
+
     const orders = await prisma.order.findMany({
       where: {
-        userId: session.user.email!
+        userId: user.id
       },
       include: {
         items: {
@@ -32,7 +45,7 @@ export async function GET(request: Request) {
         createdAt: 'desc'
       }
     });
-
+ console.log('Orders:', orders);
     return NextResponse.json(orders);
   } catch (error) {
     console.error('Error fetching orders:', error);

@@ -57,7 +57,25 @@ export async function POST(request: Request) {
     });
 
     console.log('Checkout session created:', stripeSession.id);
-    return NextResponse.json({ sessionId: stripeSession.id });
+    // Create a new order in the database
+    const newOrder = await prisma.order.create({
+      data: {
+        userId: user.id,
+        total: (stripeSession.amount_total ?? 0) / 100, // Convert cents to dollars
+        status: 'Pending',
+        items: {
+          create: items.map((item: { id: string; quantity: number; price: number }) => ({
+            productId: item.id,
+            quantity: item.quantity,
+            price: item.price,
+          })),
+        },
+      },
+    });
+
+    console.log('New order created:', newOrder.id);
+
+    return NextResponse.json({ sessionId: stripeSession.id, orderId: newOrder.id });
   } catch (error) {
     console.error('Stripe checkout error:', error);
     return NextResponse.json(

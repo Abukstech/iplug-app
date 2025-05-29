@@ -74,13 +74,19 @@ export default function Navbar() {
                   className="flex items-center space-x-2 focus:outline-none"
                 >
                   <div className="w-8 h-8 rounded-full bg-gray-200 overflow-hidden">
-                    <Image
-                      src={session.user?.image || "/placeholder-avatar.jpg"}
-                      alt="Profile"
-                      width={32}
-                      height={32}
-                      className="object-cover"
-                    />
+                    {session.user?.image ? (
+                      <Image
+                        src={session.user.image}
+                        alt="Profile"
+                        width={32}
+                        height={32}
+                        className="object-cover"
+                      />
+                    ) : (
+                      <div className="flex items-center justify-center w-full h-full bg-blue-600 text-white">
+                        {session.user?.name?.slice(0, 2).toUpperCase() || 'NA'}
+                      </div>
+                    )}
                   </div>
                   <span className="text-sm">{session.user?.name || 'My Profile'}</span>
                 </button>
@@ -89,7 +95,6 @@ export default function Navbar() {
                   <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-50">
                     <Link href="/profile" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Your Profile</Link>
                     <Link href="/orders" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Orders</Link>
-                    <Link href="/settings" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Settings</Link>
                   </div>
                 )}
               </div>

@@ -115,16 +115,12 @@ export default async  function  Home() {
 
         <h2 className="text-2xl  mt-4 font-semibold mb-6">Featured Collections</h2>
         <section className="my-12 grid md:grid-cols-2 gap-6">
-
-   
-          <div className="rounded-lg p-6 flex items-center justify-between">
-           
+          <Link href="/products" className="rounded-lg p-6 flex items-center justify-between hover:opacity-90 transition-opacity">
             <Image src={trending1} alt="iPhone" className="" />
-          </div>
-          <div className="rounded-lg p-6 flex items-center justify-between">
-            
+          </Link>
+          <Link href="/products" className="rounded-lg p-6 flex items-center justify-between hover:opacity-90 transition-opacity">
             <Image src={trending2} alt="iPhone" className="" />
-          </div>
+          </Link>
         </section>
 
         {/* Trending Section */}
@@ -181,14 +177,11 @@ export default async  function  Home() {
         <section className="my-12 ">
           <div className="flex flex-col md:flex-row space-y-6 md:space-x-8">
             {accessories.map((item, index) => (
-              <div key={index} className="   rounded-lg shadow-md overflow-hidden">
+              <Link href="/products" key={index} className="rounded-lg shadow-md overflow-hidden hover:opacity-90 transition-opacity">
                 <div className=" ">
                   <Image src={item.image} alt={item.name} className="object-cover" />
                 </div>
-                {/* <div className="p-4">
-                  <h3 className="font-semibold text-center">{item.name}</h3>
-                </div> */}
-              </div>
+              </Link>
             ))}
           </div>
         </section>

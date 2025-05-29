@@ -290,9 +290,9 @@ export default function ProductCatalogue() {
                   <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
                     <span className="text-lg sm:text-xl font-bold">${product.price}</span>
                     <div className="flex gap-2 w-full sm:w-auto">
-                      <button className="flex-1 sm:flex-none bg-blue-600 text-white px-3 py-1.5 rounded-md text-sm font-medium hover:bg-blue-700">
+                      {/* <button className="flex-1 sm:flex-none bg-blue-600 text-white px-3 py-1.5 rounded-md text-sm font-medium hover:bg-blue-700">
                         Buy Now
-                      </button>
+                      </button> */}
                       <button 
                         onClick={(e) => {
                           e.stopPropagation();

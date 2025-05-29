@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useParams } from 'next/navigation';
 import Image from 'next/image';
+import { useCart } from '@/app/hooks/useCart';
 
 interface ProductDetails {
   id: string;
@@ -25,6 +26,8 @@ export default function ProductDetails() {
   const [product, setProduct] = useState<ProductDetails | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+    const { addToCart } = useCart();
 
   useEffect(() => {
     const fetchProduct = async () => {
@@ -126,10 +129,19 @@ export default function ProductDetails() {
 
             {/* Action Buttons */}
             <div className="flex space-x-4">
-              <button className="flex-1 bg-blue-600 text-white px-6 py-3 rounded-md font-semibold hover:bg-blue-700 transition">
+              {/* <button className="flex-1 bg-blue-600 text-white px-6 py-3 rounded-md font-semibold hover:bg-blue-700 transition">
                 Buy Now
-              </button>
-              <button className="flex-1 border border-blue-600 text-blue-600 px-6 py-3 rounded-md font-semibold hover:bg-blue-50 transition">
+              </button> */}
+              <button onClick={(e) => {
+                          e.stopPropagation();
+                          addToCart({
+                            id: product.id,
+                            name: product.name,
+                            price: product.price,
+                            image: product.images[0],
+                            quantity: 1
+                          });
+                        }}  className="flex-1 border border-blue-600 text-blue-600 px-6 py-3 rounded-md font-semibold hover:bg-blue-50 transition">
                 Add to Cart
               </button>
             </div>

@@ -53,6 +53,7 @@ export default function Cart() {
           items: cartItems.map(item => ({
             name: item.name,
             price: item.price,
+            id: item.id,
             image: item.image,
             quantity: item.quantity,
           })),
