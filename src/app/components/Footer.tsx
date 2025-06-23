@@ -66,7 +66,7 @@ export default function Footer() {
               <a href="#" className="block text-gray-600 hover:text-blue-600">Terms of Service</a>
               <a href="#" className="block text-gray-600 hover:text-blue-600">Privacy Policy</a>
             </div>
-            <p className="text-gray-600 text-sm">© 2023 Rayna. All rights reserved.</p>
+            <p className="text-gray-600 text-sm">© {new Date().getFullYear()} {' '} Iplug. All rights reserved.</p>
           </div>
         </div>
       </div>
